@@ -1,7 +1,7 @@
 
 
-remote_file 'memcached source package file' do 
-    source 'http://memcached.org/latest'
+remote_file 'download memcached source package file' do 
+    source node['memcached']['installer-source']['source-url']
     action :create
-    path 'memcached.tar.gz'
+    path "#{node['memcached']['installer-source']['download-path']}#{node['memcached']['installer-source']['download-filename']}"
 end
