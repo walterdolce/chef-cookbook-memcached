@@ -21,6 +21,9 @@ describe 'memcached::installer-source' do
     expect(chef_run.node['memcached']['installer-source']['prerequisites']['libevent']['install-if-missing']).to eq('yes')
     expect(chef_run.node['memcached']['installer-source']['prerequisites']['libevent']['library-path']).to eq('/usr/lib64/libevent.so')
     expect(chef_run.node['memcached']['installer-source']['prerequisites']['libevent']['use-configure-prefix']).to eq('yes')
+    expect(chef_run.node['memcached']['installer-source']['configuration']['enable-64bit']).to eq('yes')
+    expect(chef_run.node['memcached']['installer-source']['configuration']['enable-threads']).to eq('no')
+    expect(chef_run.node['memcached']['installer-source']['clean-up-after-install']).to eq('yes')
   end
 
   it 'verifies that yum exists as it is required by memcached installation from source process' do 
@@ -165,7 +168,7 @@ describe 'memcached::installer-source' do
     libevent_path = "#{chef_run.node['memcached']['installer-source']['prerequisites']['libevent']['library-path']}"
     package_directory = "#{chef_run.node['memcached']['installer-source']['download-path']}#{chef_run.node['memcached']['installer-source']['download-filename'].gsub(/\.tar\.gz$/, '')}"
     destination_directory = "#{chef_run.node['memcached']['installer-source']['installation-path']}#{chef_run.node['memcached']['installer-source']['installation-directory']}"
-    expect(chef_run).to run_execute("#{package_directory}/configure --prefix=#{destination_directory} --with-libevent=#{libevent_path}")
+    expect(chef_run).to run_execute("#{package_directory}/configure --prefix=#{destination_directory} --with-libevent=#{libevent_path} --enable-64bit")
   end
 
   it 'raises an exception if something goes wrong during installation path configuration with libevent directory param' do 
@@ -173,9 +176,26 @@ describe 'memcached::installer-source' do
         libevent_path = "#{chef_run.node['memcached']['installer-source']['prerequisites']['libevent']['library-path']}"
         package_directory = "#{chef_run.node['memcached']['installer-source']['download-path']}#{chef_run.node['memcached']['installer-source']['download-filename'].gsub(/\.tar\.gz$/, '')}"
         destination_directory = "#{chef_run.node['memcached']['installer-source']['installation-path']}#{chef_run.node['memcached']['installer-source']['installation-directory']}"
-        resource = chef_run.execute("#{package_directory}/configure --prefix=#{destination_directory} --with-libevent=#{libevent_path}")
+        resource = chef_run.execute("#{package_directory}/configure --prefix=#{destination_directory} --with-libevent=#{libevent_path} --enable-64bit")
         allow(resource).to raise_error
     }.to raise_error
+  end
+
+  it 'configures downloaded package without libevent directory path when attribute param is set to no' do 
+    chef_run.node.set['memcached']['installer-source']['prerequisites']['libevent']['use-configure-prefix'] = 'no'
+    chef_run.converge(described_recipe)
+    package_directory = "#{chef_run.node['memcached']['installer-source']['download-path']}#{chef_run.node['memcached']['installer-source']['download-filename'].gsub(/\.tar\.gz$/, '')}"
+    destination_directory = "#{chef_run.node['memcached']['installer-source']['installation-path']}#{chef_run.node['memcached']['installer-source']['installation-directory']}"
+    expect(chef_run).to run_execute("#{package_directory}/configure --prefix=#{destination_directory} --enable-64bit")
+  end
+
+  it 'configures memcached with threads option enabled when set to yes' do 
+    chef_run.node.set['memcached']['installer-source']['prerequisites']['libevent']['use-configure-prefix'] = 'no'
+    chef_run.node.set['memcached']['installer-source']['configuration']['enable-threads']  = 'yes'
+    chef_run.converge(described_recipe)
+    package_directory = "#{chef_run.node['memcached']['installer-source']['download-path']}#{chef_run.node['memcached']['installer-source']['download-filename'].gsub(/\.tar\.gz$/, '')}"
+    destination_directory = "#{chef_run.node['memcached']['installer-source']['installation-path']}#{chef_run.node['memcached']['installer-source']['installation-directory']}"
+    expect(chef_run).to run_execute("#{package_directory}/configure --prefix=#{destination_directory} --enable-64bit --enable-threads")
   end
 
   it 'runs make commands to test and install downloaded package' do 

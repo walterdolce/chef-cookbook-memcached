@@ -11,3 +11,8 @@ default['memcached']['installer-source']['prerequisites']['perl']['install-if-mi
 default['memcached']['installer-source']['prerequisites']['libevent']['install-if-missing']   = 'yes'
 default['memcached']['installer-source']['prerequisites']['libevent']['use-configure-prefix'] = 'yes'
 default['memcached']['installer-source']['prerequisites']['libevent']['library-path']         = '/usr/lib64/libevent.so'
+
+default['memcached']['installer-source']['configuration']['enable-64bit']   = 'yes'
+default['memcached']['installer-source']['configuration']['enable-threads'] = 'no'
+
+default['memcached']['installer-source']['clean-up-after-install'] = 'yes'

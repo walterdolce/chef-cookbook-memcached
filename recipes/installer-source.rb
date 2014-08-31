@@ -80,11 +80,20 @@ directory package_installation_dir do
   action :create
 end
 
+enable_64bit = ''
+if node['memcached']['installer-source']['configuration']['enable-64bit'] == 'yes' 
+    enable_64bit = ' --enable-64bit'
+end
+enable_threads = ''
+if node['memcached']['installer-source']['configuration']['enable-threads'] == 'yes' 
+    enable_threads = ' --enable-threads'
+end
+
 if node['memcached']['installer-source']['prerequisites']['libevent']['use-configure-prefix'] == 'yes'
     libevent_path = "#{node['memcached']['installer-source']['prerequisites']['libevent']['library-path']}"
-    configure_command = "#{downloaded_file_path_cleaned}/configure --prefix=#{package_installation_dir} --with-libevent=#{libevent_path}"
+    configure_command = "#{downloaded_file_path_cleaned}/configure --prefix=#{package_installation_dir} --with-libevent=#{libevent_path}#{enable_64bit}#{enable_threads}"
 else 
-    configure_command = "#{downloaded_file_path_cleaned}/configure --prefix=#{package_installation_dir}"
+    configure_command = "#{downloaded_file_path_cleaned}/configure --prefix=#{package_installation_dir}#{enable_64bit}#{enable_threads}"
 end
 
 execute 'configure installation path for downloaded package' do 
