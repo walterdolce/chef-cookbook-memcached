@@ -1,0 +1,13 @@
+driver:
+  name: vagrant
+
+provisioner:
+  name: chef_solo
+
+platforms:
+  - name: centos-6.5
+
+suites:
+  - name: installer-source
+    run_list:
+        - recipe[memcached::installer-source]

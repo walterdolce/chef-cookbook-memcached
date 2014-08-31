@@ -1,0 +1,13 @@
+
+Implement SASL support provisioning
+
+Reference (Make & install section): https://code.google.com/p/memcached/wiki/NewInstallFromSource
+Reference: https://code.google.com/p/memcached/wiki/SASLHowto
+
+Implement libmemcached support
+
+From documentation (https://code.google.com/p/memcached/wiki/NewInstallFromSource):
+
+    "Note that many clients depend on libmemcached*. They either include it in their sources, or require an external build. You can follow the above practices for fetching and installing libmemcached as well."
+
+    *http://libmemcached.org/libMemcached.html
